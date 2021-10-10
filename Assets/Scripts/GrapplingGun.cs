@@ -6,7 +6,7 @@ public class GrapplingGun : MonoBehaviour {
     private Vector3 grapplePoint;
     public LayerMask whatIsGrappleable;
     public Transform firePoint, cam, player;
-    private float maxDistance = 100f;
+    private float maxDistance = 200f;
     private SpringJoint joint;
 
     void Awake() {
@@ -45,9 +45,9 @@ public class GrapplingGun : MonoBehaviour {
             joint.minDistance = distanceFromPoint * 0.25f;
 
             //Adjust these values to fit your game.
-            joint.spring = 4.5f;
-            joint.damper = 7f;
-            joint.massScale = 4.5f;
+            joint.spring = 6f;
+            joint.damper = 10f;
+            joint.massScale = 5f;
 
             lr.positionCount = 2;
             currentGrapplePosition = firePoint.position;
