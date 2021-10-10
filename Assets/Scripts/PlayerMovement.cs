@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-     float playerHeight = 2f;
+    float playerHeight = 2f;
 
     [SerializeField] Transform orientation;
 
     [Header("Movement")]
     [SerializeField] float moveSpeed = 6f;
     [SerializeField] float airMultiplier = 0.4f;
-    float movementMultiplier = 10f;
+    float movementMultiplier = 10f;    
+    float horizontalMovement;
+    float verticalMovement;
 
     [Header("Sprinting")]
     [SerializeField] float walkSpeed = 4f;
@@ -29,13 +31,36 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float groundDrag = 6f;
     [SerializeField] float airDrag = 2f;
 
-    float horizontalMovement;
-    float verticalMovement;
 
     [Header("Ground Detection")]
     [SerializeField] Transform groundCheck;
     [SerializeField] LayerMask groundMask;
     [SerializeField] float groundDistance = 0.2f;
+
+    [Header("Detection")]
+    [SerializeField] private float wallDistance = .5f;
+    [SerializeField] private float minimumJumpHeight = 1.5f;
+
+    [Header("Wall Running")]
+    [SerializeField] private float wallRunGravity;
+    [SerializeField] private float wallRunJumpForce;
+    [SerializeField] private bool isWallrunning;
+
+    [Header("Camera")]
+    [SerializeField] private Camera cam;
+    [SerializeField] private float fov;
+    [SerializeField] private float wallRunfov;
+    [SerializeField] private float wallRunfovTime;
+    [SerializeField] private float camTilt;
+    [SerializeField] private float camTiltTime;
+
+    public float tilt { get; private set; }
+
+    private bool wallLeft = false;
+    private bool wallRight = false;
+
+    RaycastHit leftWallHit;
+    RaycastHit rightWallHit;
     public bool isGrounded { get; private set; }
 
     Vector3 moveDirection;
@@ -61,15 +86,56 @@ public class PlayerMovement : MonoBehaviour
         return false;
     }
 
+    bool CanWallRun()
+    {
+        return !Physics.Raycast(transform.position, Vector3.down, minimumJumpHeight);
+    }
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
     }
 
-    private void Update()
+    void CheckWall()
     {
-        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        wallLeft = Physics.Raycast(transform.position, -orientation.right, out leftWallHit, wallDistance);
+        wallRight = Physics.Raycast(transform.position, orientation.right, out rightWallHit, wallDistance);
+    }
+
+    private void Update()
+    {        CheckWall();
+
+        if (CanWallRun())
+        {
+            if (wallLeft)
+            {
+                StartWallRun();
+                Debug.Log("wall running on the left");
+            }
+            else if (wallRight)
+            {
+                StartWallRun();
+                Debug.Log("wall running on the right");
+            }
+            else
+            {
+                StopWallRun();
+            }
+        }
+        else
+        {
+            StopWallRun();
+        }
+
+        if (isWallrunning == true)
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);            
+        }
 
         MyInput();
         ControlDrag();
@@ -81,6 +147,49 @@ public class PlayerMovement : MonoBehaviour
         }
 
         slopeMoveDirection = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal);
+    }
+
+    void StartWallRun()
+    {
+
+        isWallrunning = true;
+        rb.useGravity = false;
+
+        rb.AddForce(Vector3.down * wallRunGravity, ForceMode.Force);
+
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, wallRunfov, wallRunfovTime * Time.deltaTime);
+
+        if (wallLeft)
+            tilt = Mathf.Lerp(tilt, -camTilt, camTiltTime * Time.deltaTime);
+        else if (wallRight)
+            tilt = Mathf.Lerp(tilt, camTilt, camTiltTime * Time.deltaTime);
+
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (wallLeft)
+            {
+                Vector3 wallRunJumpDirection = transform.up + leftWallHit.normal;
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+                rb.AddForce(wallRunJumpDirection * wallRunJumpForce * 100, ForceMode.Force);
+            }
+            else if (wallRight)
+            {
+                Vector3 wallRunJumpDirection = transform.up + rightWallHit.normal;
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); 
+                rb.AddForce(wallRunJumpDirection * wallRunJumpForce * 100, ForceMode.Force);
+            }
+        }
+    }
+
+    void StopWallRun()
+    {
+
+        isWallrunning = false;
+        rb.useGravity = true;
+
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov, wallRunfovTime * Time.deltaTime);
+        tilt = Mathf.Lerp(tilt, 0, camTiltTime * Time.deltaTime);
     }
 
     void MyInput()
@@ -143,5 +252,5 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * airMultiplier, ForceMode.Acceleration);
         }
-    }
+    } 
 }
