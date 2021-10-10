@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerLook : MonoBehaviour
 {
     [Header("References")]
+    [SerializeField] WallRun wallRun;
     [SerializeField] private float sensX;
     [SerializeField] private float sensY;
     [SerializeField] Transform cameraHolder;
@@ -26,7 +27,7 @@ public class PlayerLook : MonoBehaviour
     void Update()
     {
         LookAtMouse();
-        cameraHolder.transform.localRotation = Quaternion.Euler(cameraXrotation, cameraYrotation, 0);
+        cameraHolder.transform.localRotation = Quaternion.Euler(cameraXrotation, cameraYrotation, wallRun.tilt);
         orientation.rotation = Quaternion.Euler(0, cameraYrotation, 0);
     }
 
