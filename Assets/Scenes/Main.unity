@@ -2549,7 +2549,6 @@ GameObject:
   - component: {fileID: 2058946719}
   - component: {fileID: 2058946718}
   - component: {fileID: 2058946717}
-  - component: {fileID: 2058946723}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -2606,18 +2605,29 @@ MonoBehaviour:
   moveSpeed: 6
   airMultiplier: 0.4
   walkSpeed: 4
-  sprintSpeed: 12
+  sprintSpeed: 6
   acceleration: 10
-  jumpForce: 16
+  jumpForce: 5
   jumpKey: 32
   sprintKey: 304
   groundDrag: 6
-  airDrag: 1
+  airDrag: 2
   groundCheck: {fileID: 1402750262}
   groundMask:
     serializedVersion: 2
     m_Bits: 64
   groundDistance: 0.2
+  wallDistance: 0.5
+  minimumJumpHeight: 1.5
+  wallRunGravity: 0.8
+  wallRunJumpForce: 60
+  isWallrunning: 1
+  cam: {fileID: 712361141}
+  fov: 80
+  wallRunfov: 110
+  wallRunfovTime: 1
+  camTilt: 11
+  camTiltTime: 1.5
 --- !u!54 &2058946719
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2698,29 +2708,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2058946715}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &2058946723
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2058946715}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5dc96b653f89d8546bf2eb9add2c2c94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  orientation: {fileID: 1666775954}
-  wallDistance: 0.5
-  minimumJumpHeight: 1.5
-  wallRunGravity: 0.6
-  wallRunJumpForce: 3
-  cam: {fileID: 712361141}
-  fov: 90
-  wallRunfov: 110
-  wallRunfovTime: 3
-  camTilt: 15
-  camTiltTime: 1.5
 --- !u!1001 &2147482692
 PrefabInstance:
   m_ObjectHideFlags: 0
